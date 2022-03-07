@@ -25,7 +25,7 @@ func main() {
 
 	// populate the gof (the app) var
 	// func in folder helper.go
-	setup()
+	setup(arg1, arg2)
 
 	switch arg1 {
 	case "help":

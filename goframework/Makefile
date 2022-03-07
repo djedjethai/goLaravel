@@ -15,3 +15,7 @@ coverage:
 # and then install the binaries in ../myapp/(goframework) will be the name of the binaries
 build_cli:
 	@go build -o ../myapp/goframework ./cmd/cli
+
+## build: builds the command line tool dist directory
+build:
+	@go build -o ./dist/goframework ./cmd/cli
