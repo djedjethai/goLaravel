@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
-	"os"
 )
 
 func setup(arg1, arg2 string) {
@@ -63,6 +66,54 @@ func getDSN() string {
 	// just prepend the "mysql://" to what the Jackc driver normally use
 	return "mysql://" + gof.BuildDSN()
 
+}
+
+// this func is call by the next one
+// fi for file info
+func updateSourceFiles(path string, fi os.FileInfo, err error) error {
+	// check for ann err before to do anything
+	if err != nil {
+		return err
+	}
+
+	// check if current file is directory
+	if fi.IsDir() {
+		return nil
+	}
+
+	// make sure we only check the go files
+	matched, err := filepath.Match("*.go", fi.Name())
+	if err != nil {
+		return err
+	}
+
+	// reach here means we have a .go file
+	if matched {
+		// read file content
+		read, err := os.ReadFile(path)
+		if err != nil {
+			exitGracefully(err)
+		}
+
+		// -1 replace every occurance
+		newContents := strings.Replace(string(read), "myapp", appURL, -1)
+
+		// write the changed file(0 means do not change it)
+		err = os.WriteFile(path, []byte(newContents), 0)
+		if err != nil {
+			exitGracefully(err)
+		}
+	}
+
+	return nil
+}
+
+func updateSource() {
+	// walk entire project folder, including subfolder
+	err := filepath.Walk(".", updateSourceFiles)
+	if err != nil {
+		exitGracefully(err)
+	}
 }
 
 func showHelp() {
